@@ -16,9 +16,9 @@ services:
 
   growthbook:
     image: "growthbook/growthbook:latest"
-    ports:
-      - "3000:3000"
-      - "3100:3100"
+    expose:
+      - "3000"
+      - "3100"
     depends_on:
       mongo:
         condition: service_healthy
@@ -31,7 +31,6 @@ services:
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:?Defina ENCRYPTION_KEY com uma string aleatoria longa}
       - NODE_ENV=production
       - DISABLE_TELEMETRY=true
-      # Email (opcional)
       - EMAIL_ENABLED=${EMAIL_ENABLED:-false}
       - EMAIL_HOST=${EMAIL_HOST:-}
       - EMAIL_PORT=${EMAIL_PORT:-587}
@@ -40,6 +39,16 @@ services:
       - EMAIL_FROM=${EMAIL_FROM:-}
     volumes:
       - uploads:/usr/local/src/app/packages/back-end/uploads
+
+  proxy:
+    image: "nginx:alpine"
+    ports:
+      - "3000:80"
+    depends_on:
+      - growthbook
+    restart: unless-stopped
+    volumes:
+      - ./nginx.coolify.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   mongodata:
