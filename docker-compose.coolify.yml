@@ -1,0 +1,46 @@
+services:
+  mongo:
+    image: "mongo:7"
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-growthbook}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:?Defina MONGO_PASSWORD nas variaveis do Coolify}
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  growthbook:
+    image: "growthbook/growthbook:latest"
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USER:-growthbook}:${MONGO_PASSWORD}@mongo:27017/growthbook?authSource=admin
+      - APP_ORIGIN=${APP_ORIGIN:?Defina APP_ORIGIN com a URL publica do frontend}
+      - API_HOST=${API_HOST:?Defina API_HOST com a URL publica da API}
+      - JWT_SECRET=${JWT_SECRET:?Defina JWT_SECRET com uma string aleatoria longa}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?Defina ENCRYPTION_KEY com uma string aleatoria longa}
+      - NODE_ENV=production
+      - DISABLE_TELEMETRY=true
+      # Email (opcional)
+      - EMAIL_ENABLED=${EMAIL_ENABLED:-false}
+      - EMAIL_HOST=${EMAIL_HOST:-}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER:-}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+    volumes:
+      - uploads:/usr/local/src/app/packages/back-end/uploads
+
+volumes:
+  mongodata:
+  uploads:

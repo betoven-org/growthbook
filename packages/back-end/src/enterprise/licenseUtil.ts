@@ -1049,7 +1049,7 @@ export function getEffectiveAccountPlan(org: MinimalOrganization): AccountPlan {
     }
     basicPlan = "starter";
   } else {
-    basicPlan = "oss";
+    basicPlan = "enterprise";
   }
 
   const hasError = getLicenseError(org);
