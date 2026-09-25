@@ -7,12 +7,6 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:?Defina MONGO_PASSWORD nas variaveis do Coolify}
     volumes:
       - mongodata:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
 
   growthbook:
     image: "growthbook/growthbook:latest"
@@ -20,8 +14,7 @@ services:
       - "3000"
       - "3100"
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     restart: unless-stopped
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-growthbook}:${MONGO_PASSWORD}@mongo:27017/growthbook?authSource=admin
