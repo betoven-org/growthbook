@@ -35,8 +35,8 @@ services:
 
   proxy:
     image: "nginx:alpine"
-    ports:
-      - "3000:80"
+    expose:
+      - "80"
     depends_on:
       - growthbook
     restart: unless-stopped
