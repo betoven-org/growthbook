@@ -32,13 +32,15 @@ services:
       - EMAIL_FROM=${EMAIL_FROM:-}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gb-api.rule=Host(`growthbook.oduscommerce.com.br`) && (PathPrefix(`/api/`) || PathPrefix(`/auth/`) || PathPrefix(`/oauth/`))"
+      - "traefik.http.routers.gb-api.rule=Host(`api-growthbook.oduscommerce.com.br`)"
       - "traefik.http.routers.gb-api.entrypoints=https"
       - "traefik.http.routers.gb-api.tls=true"
       - "traefik.http.routers.gb-api.tls.certresolver=letsencrypt"
       - "traefik.http.routers.gb-api.service=gb-api-svc"
-      - "traefik.http.routers.gb-api.priority=100"
       - "traefik.http.services.gb-api-svc.loadbalancer.server.port=3100"
+      - "traefik.http.routers.gb-api-http.rule=Host(`api-growthbook.oduscommerce.com.br`)"
+      - "traefik.http.routers.gb-api-http.entrypoints=http"
+      - "traefik.http.routers.gb-api-http.middlewares=redirect-to-https"
     volumes:
       - uploads:/usr/local/src/app/packages/back-end/uploads
 
